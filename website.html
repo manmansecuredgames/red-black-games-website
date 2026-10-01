@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #cc0000;
+        }
+
+        h1 {
+            font-size: 3em;
+            color: #cc0000;
+            text-shadow: 0 0 20px rgba(204, 0, 0, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* INFO PAGE */
+        .info-section {
+            background: rgba(20, 20, 20, 0.8);
+            border: 2px solid #cc0000;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-section h2 {
+            color: #cc0000;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
+        }
+
+        .info-section p {
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        /* GAMES PAGE */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #cc0000;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 0 30px rgba(204, 0, 0, 0.6);
+            border-color: #ff0000;
+        }
+
+        .game-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .game-card h3 {
+            color: #cc0000;
+            margin-bottom: 10px;
+        }
+
+        .game-card p {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* CHATROOM PAGE */
+        .chat-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #cc0000;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            border-bottom: 1px solid #cc0000;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(50, 50, 50, 0.7);
+            border-left: 3px solid #cc0000;
+            border-radius: 5px;
+        }
+
+        .message.own {
+            background: rgba(204, 0, 0, 0.2);
+            border-left-color: #ff0000;
+            text-align: right;
+        }
+
+        .message-author {
+            color: #cc0000;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .message-text {
+            color: #ddd;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid #cc0000;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .chat-input-container button {
+            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input-container button:hover {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+        }
+
+        /* AI PAGE */
+        .ai-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #cc0000;
+            border-radius: 10px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ai-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: rgba(10, 10, 10, 0.5);
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .ai-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(50, 50, 50, 0.7);
+            border-left: 3px solid #cc0000;
+            border-radius: 5px;
+        }
+
+        .ai-message.user {
+            background: rgba(204, 0, 0, 0.2);
+            border-left-color: #ff0000;
+            text-align: right;
+            margin-left: 20%;
+        }
+
+        .ai-message.assistant {
+            margin-right: 20%;
+        }
+
+        .ai-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .ai-input-container input {
+            flex: 1;
+            background: rgba(50, 50, 50, 0.8);
+            border: 1px solid #cc0000;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .ai-input-container button {
+            background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .ai-input-container button:hover {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+        }
+
+        /* TOOLBAR */
+        .toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(20, 20, 20, 0.95);
+            border-top: 2px solid #cc0000;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 15px 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .toolbar-button {
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .toolbar-button:hover,
+        .toolbar-button.active {
+            color: #cc0000;
+            background: rgba(204, 0, 0, 0.2);
+            transform: scale(1.1);
+            text-shadow: 0 0 10px rgba(204, 0, 0, 0.7);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(50, 50, 50, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cc0000;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas>
+    
+    <div class="content">
+        <header>
+            <h1>🎮 RED & BLACK GAMES 🎮</h1>
+            <p class="subtitle">Your Ultimate Gaming Destination</p>
+        </header>
+
+        <!-- INFO PAGE -->
+        <div class="page active" id="info">
+            <div class="info-section">
+                <h2>🌟 Welcome to Red & Black Games</h2>
+                <p>Experience the ultimate gaming hub where thrilling games meet epic adventures. We've got everything you need for hours of entertainment and excitement!</p>
+            </div>
+
+            <div class="info-section">
+                <h2>🎯 What We Offer</h2>
+                <p>🎮 <strong>100+ Awesome Games</strong> - From classic favorites to modern hits, we have games for everyone!</p>
+                <p>💬 <strong>Live Chatroom</strong> - Connect with gamers worldwide and make new friends</p>
+                <p>🤖 <strong>AI Assistant</strong> - Get instant answers and gaming tips from our intelligent AI</p>
+                <p>⚡ <strong>Smooth Performance</strong> - Lightning-fast gameplay with stunning graphics</p>
+            </div>
+
+            <div class="info-section">
+                <h2>🔥 Why Choose Us?</h2>
+                <p>We're dedicated to providing the best gaming experience with a beautiful, modern interface. Our platform is free, safe, and always updated with new games and features!</p>
+            </div>
+        </div>
+
+        <!-- GAMES PAGE -->
+        <div class="page" id="games">
+            <h2 style="color: #cc0000; margin-bottom: 20px; text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);">🎮 GAME COLLECTION</h2>
+            <div class="games-grid">
+                <div class="game-card"><div class="game-icon">♠️</div><h3>Spades Master</h3><p>Classic card game</p></div>
+                <div class="game-card"><div class="game-icon">🃏</div><h3>Poker Rush</h3><p>High stakes action</p></div>
+                <div class="game-card"><div class="game-icon">🎲</div><h3>Dice Roller</h3><p>Lucky numbers</p></div>
+                <div class="game-card"><div class="game-icon">♥️</div><h3>Heart Breaker</h3><p>Card strategy</p></div>
+                <div class="game-card"><div class="game-icon">🎯</div><h3>Target Blast</h3><p>Precision shooter</p></div>
+                <div class="game-card"><div class="game-icon">🐍</div><h3>Snake Legend</h3><p>Retro classic</p></div>
+                <div class="game-card"><div class="game-icon">💣</div><h3>Bomb Runner</h3><p>Dodge & survive</p></div>
+                <div class="game-card"><div class="game-icon">🚀</div><h3>Space Odyssey</h3><p>Intergalactic</p></div>
+                <div class="game-card"><div class="game-icon">🏀</div><h3>Ball Blitz</h3><p>Sports action</p></div>
+                <div class="game-card"><div class="game-icon">👾</div><h3>Retro Invaders</h3><p>Arcade vibes</p></div>
+                <div class="game-card"><div class="game-icon">🧩</div><h3>Puzzle Master</h3><p>Brain teaser</p></div>
+                <div class="game-card"><div class="game-icon">🎪</div><h3>Carnival Quest</h3><p>Fun & games</p></div>
+                <div class="game-card"><div class="game-icon">⚡</div><h3>Lightning Race</h3><p>Speed challenge</p></div>
+                <div class="game-card"><div class="game-icon">🍕</div><h3>Pizza Panic</h3><p>Time management</p></div>
+                <div class="game-card"><div class="game-icon">🌊</div><h3>Surfer Dude</h3><p>Wave riding</p></div>
+                <div class="game-card"><div class="game-icon">🎸</div><h3>Rock Star</h3><p>Music rhythm</p></div>
+                <div class="game-card"><div class="game-icon">🐉</div><h3>Dragon Quest</h3><p>Fantasy RPG</p></div>
+                <div class="game-card"><div class="game-icon">👑</div><h3>King's Crown</h3><p>Strategy game</p></div>
+                <div class="game-card"><div class="game-icon">🌙</div><h3>Night Runner</h3><p>Dark adventure</p></div>
+                <div class="game-card"><div class="game-icon">💎</div><h3>Gem Collector</h3><p>Match 3 puzzle</p></div>
+            </div>
+        </div>
+
+        <!-- CHATROOM PAGE -->
+        <div class="page" id="chatroom">
+            <h2 style="color: #cc0000; margin-bottom: 20px; text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);">💬 LIVE CHATROOM</h2>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message">
+                        <div class="message-author">System</div>
+                        <div class="message-text">Welcome to Red & Black Games Chatroom! Say hello 👋</div>
+                    </div>
+                    <div class="message">
+                        <div class="message-author">GameMaster</div>
+                        <div class="message-text">Hey everyone! Who's up for some gaming?</div>
+                    </div>
+                    <div class="message">
+                        <div class="message-author">ShadowPlayer</div>
+                        <div class="message-text">Just finished an awesome round! 🔥</div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" placeholder="Type your message...">
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI PAGE -->
+        <div class="page" id="ai">
+            <h2 style="color: #cc0000; margin-bottom: 20px; text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);">🤖 ASK OUR AI</h2>
+            <div class="ai-container">
+                <div class="ai-messages" id="aiMessages">
+                    <div class="ai-message assistant">
+                        <strong>AI Assistant:</strong> Hello! I'm here to answer any questions you have about our games, gaming strategies, or anything else. What would you like to know?
+                    </div>
+                </div>
+                <div class="ai-input-container">
+                    <input type="text" id="aiInput" placeholder="Ask me anything...">
+                    <button onclick="askAI()">Ask</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <button class="toolbar-button active" onclick="switchPage('info')" title="Info">ℹ️</button>
+        <button class="toolbar-button" onclick="switchPage('games')" title="Games">🎮</button>
+        <button class="toolbar-button" onclick="switchPage('chatroom')" title="Chatroom">💬</button>
+        <button class="toolbar-button" onclick="switchPage('ai')" title="AI">🤖</button>
+    </div>
+
+    <script>
+        // Particle Animation
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 2 - 1;
+                this.color = Math.random() > 0.5 ? 'rgba(204, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.2)';
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 120; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let particle of particles) {
+                particle.update();
+                particle.draw();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Page Navigation
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById(pageName).classList.add('active');
+            
+            document.querySelectorAll('.toolbar-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Chat Functionality
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const messagesDiv = document.getElementById('chatMessages');
+                
+                const msgElement = document.createElement('div');
+                msgElement.className = 'message own';
+                msgElement.innerHTML = '<div class="message-author">You</div><div class="message-text">' + message + '</div>';
+                messagesDiv.appendChild(msgElement);
+                
+                input.value = '';
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                setTimeout(() => {
+                    const replyElement = document.createElement('div');
+                    replyElement.className = 'message';
+                    replyElement.innerHTML = '<div class="message-author">GameMaster</div><div class="message-text">That\'s awesome! Keep gaming! 🎮</div>';
+                    messagesDiv.appendChild(replyElement);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, 800);
+            }
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        // AI Functionality
+        const aiResponses = [
+            "That's a great question! The key to winning is practice and strategy. Keep playing and you'll improve! 🚀",
+            "I love that question! Have you tried playing multiple games to find your favorite? 🎮",
+            "That's interesting! Gaming is all about having fun and enjoying the experience. What's your favorite game? 🌟",
+            "Excellent point! Teamwork and communication are super important in multiplayer games! 💪",
+            "Wow! You've got great insights. Keep exploring our games and discovering new favorites! 🔥",
+            "That's awesome feedback! Remember to take breaks and play responsibly. Enjoy! 😊"
+        ];
+
+        function askAI() {
+            const input = document.getElementById('aiInput');
+            const question = input.value.trim();
+            
+            if (question) {
+                const messagesDiv = document.getElementById('aiMessages');
+                
+                const userMsg = document.createElement('div');
+                userMsg.className = 'ai-message user';
+                userMsg.innerHTML = '<strong>You:</strong> ' + question;
+                messagesDiv.appendChild(userMsg);
+                
+                input.value = '';
+                
+                setTimeout(() => {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'ai-message assistant';
+                    aiMsg.innerHTML = '<strong>AI Assistant:</strong> ' + aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                    messagesDiv.appendChild(aiMsg);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }, 600);
+            }
+        }
+
+        document.getElementById('aiInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askAI();
+        });
+    </script>
+</body>
+</html>
